@@ -111,6 +111,30 @@ td.num{font-variant-numeric:tabular-nums;font-weight:700;text-align:center}
 .loading{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,.3);
   border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
+
+/* ── TOOLTIPS ── */
+[data-tip]{position:relative}
+[data-tip]::after{
+  content:attr(data-tip);
+  position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%) scale(.95);
+  background:#0f2e22;color:#fff;font-size:11.5px;font-weight:600;
+  padding:5px 11px;border-radius:8px;white-space:nowrap;
+  pointer-events:none;opacity:0;transition:opacity .18s,transform .18s;z-index:999;
+  box-shadow:0 4px 12px rgba(0,0,0,.25)
+}
+[data-tip]::before{
+  content:'';position:absolute;bottom:calc(100% + 3px);left:50%;transform:translateX(-50%);
+  border:5px solid transparent;border-top-color:#0f2e22;
+  pointer-events:none;opacity:0;transition:opacity .18s;z-index:999
+}
+[data-tip]:hover::after{opacity:1;transform:translateX(-50%) scale(1)}
+[data-tip]:hover::before{opacity:1}
+[data-tip-right]::after{left:auto;right:0;transform:translateX(0) scale(.95)}
+[data-tip-right]:hover::after{transform:translateX(0) scale(1)}
+[data-tip-right]::before{left:auto;right:12px;transform:none}
+.hactions{overflow:visible!important}
+header{overflow:visible}
+
 @media(max-width:900px){
   .kpis{grid-template-columns:repeat(2,1fr)}
   .charts{grid-template-columns:1fr}
@@ -153,41 +177,43 @@ td.num{font-variant-numeric:tabular-nums;font-weight:700;text-align:center}
 <div class="wrap">
 
   <header>
-    <div class="logo">📊</div>
+    <div class="logo" data-tip="Painel Admin — App STEAM">📊</div>
     <div class="hd">
       <h1>Painel Administrativo — App STEAM</h1>
       <div class="sub" id="connState">Conectando…</div>
     </div>
     <div class="hactions">
-      <select id="periodSel" onchange="applyPeriod()" style="width:auto;padding:8px 10px;font-size:12.5px">
-        <option value="0">Todo período</option>
-        <option value="7">Últimos 7 dias</option>
-        <option value="30">Últimos 30 dias</option>
-        <option value="90">Últimos 90 dias</option>
-      </select>
-      <button class="btn ghost sm" id="themeDash" onclick="toggleTheme()">🌙 Escuro</button>
-      <button class="btn ghost sm" onclick="exportCSV()">⬇ CSV</button>
-      <button class="btn sm" id="reloadBtn" onclick="loadAll()">↻ Atualizar</button>
-      <button class="btn ghost sm" onclick="doLogout()">Sair</button>
+      <span data-tip="Filtrar dados por período de tempo" style="position:relative">
+        <select id="periodSel" onchange="applyPeriod()" style="width:auto;padding:8px 10px;font-size:12.5px">
+          <option value="0">Todo período</option>
+          <option value="7">Últimos 7 dias</option>
+          <option value="30">Últimos 30 dias</option>
+          <option value="90">Últimos 90 dias</option>
+        </select>
+      </span>
+      <button class="btn ghost sm" id="themeDash" onclick="toggleTheme()" data-tip="Alternar entre tema claro e escuro">🌙 Escuro</button>
+      <button class="btn ghost sm" onclick="exportCSV()" data-tip="Baixar dados da tabela em formato CSV (Excel)">⬇ CSV</button>
+      <button class="btn sm" id="reloadBtn" onclick="loadAll()" data-tip="Recarregar todos os dados do Supabase">↻ Atualizar</button>
+      <button class="btn ghost sm" onclick="doLogout()" data-tip="Encerrar sessão e voltar ao login" data-tip-right>Sair</button>
     </div>
   </header>
 
   <!-- KPIs -->
   <div class="kpis">
     <div class="panel kpi">
-      <div class="ic" style="background:#e7f6ec;color:var(--green)">👥</div>
+      <div class="ic" style="background:#e7f6ec;color:var(--green)" data-tip="Total de professores e alunos cadastrados no app STEAM">👥</div>
       <div class="v" id="k_users">—</div><div class="l">Usuários cadastrados</div>
     </div>
     <div class="panel kpi">
-      <div class="ic" style="background:#e7f0fb;color:var(--blue)">📁</div>
+      <div class="ic" style="background:#e7f0fb;color:var(--blue)" data-tip="Total de projetos STEAM criados por todos os usuários">📁</div>
       <div class="v" id="k_projs">—</div><div class="l">Projetos criados</div>
     </div>
     <div class="panel kpi">
-      <div class="ic" style="background:#f3eafd;color:var(--violet)">📅</div>
+      <div class="ic" style="background:#f3eafd;color:var(--violet)" data-tip="Usuários que criaram ao menos um projeto no mês atual">📅</div>
       <div class="v" id="k_active">—</div><div class="l">Ativos este mês</div>
     </div>
     <div class="panel kpi">
-      <div class="ic" style="background:#fef0e0;color:var(--amber)">⚡</div>
+      <div class="ic" style="background:#fef0e0;color:var(--amber)" data-tip="Total de ações registradas no app: abrir projetos, gerar com IA, salvar, etc.">⚡</div>
       <div class="v" id="k_events">—</div><div class="l">Eventos de uso</div>
     </div>
   </div>
