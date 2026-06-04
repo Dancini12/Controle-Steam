@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Painel Admin — STEAM</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  :root{
+    --bg:#f4f7f5; --card:#ffffff; --ink:#0f2e22; --muted:#5b6f66;
+    --line:#e3ece7; --green:#16a34a; --green-d:#0f7a37; --teal:#0d9488;
+    --amber:#f59e0b; --red:#dc2626; --blue:#2563eb; --violet:#7c3aed;
+    --shadow:0 1px 2px rgba(15,46,34,.04),0 8px 24px rgba(15,46,34,.06);
+    --radius:16px;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:'Manrope',system-ui,sans-serif;background:
+    radial-gradient(1200px 500px at 100% -10%,rgba(22,163,74,.08),transparent 60%),
+    var(--bg);color:var(--ink);-webkit-font-smoothing:antialiased}
+  .wrap{max-width:1180px;margin:0 auto;padding:24px 18px 60px}
+  header{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:22px}
+  .logo{width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,var(--green),var(--teal));
+    display:grid;place-items:center;color:#fff;font-size:22px;box-shadow:var(--shadow)}
+  h1{font-size:20px;font-weight:800;margin:0;letter-spacing:-.02em}
+  .sub{font-size:12.5px;color:var(--muted);margin-top:2px}
+  .spacer{flex:1}
+  button{font-family:inherit;cursor:pointer;border:none;border-radius:10px;font-weight:600}
+  .btn{padding:9px 14px;font-size:13px;background:var(--ink);color:#fff;display:inline-flex;gap:7px;align-items:center}
+  .btn.ghost{background:#fff;color:var(--ink);border:1px solid var(--line)}
+  .btn:active{transform:translateY(1px)}
+
+  .panel{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
+  #config{padding:20px;margin-bottom:22px;display:none}
+  #config.open{display:block}
+  .cfg-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px 18px;margin-top:6px}
+  label{display:block;font-size:11.5px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin-bottom:5px}
+  input{width:100%;padding:9px 11px;border:1px solid var(--line);border-radius:9px;font-family:inherit;font-size:13.5px;background:#fbfdfc;color:var(--ink)}
+  input:focus{outline:none;border-color:var(--green);background:#fff}
+  .cfg-section{font-size:12px;font-weight:800;color:var(--green-d);text-transform:uppercase;letter-spacing:.06em;margin:18px 0 2px}
+  .cfg-actions{display:flex;gap:10px;margin-top:20px;align-items:center;flex-wrap:wrap}
+
+  .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:22px}
+  .kpi{padding:18px;display:flex;flex-direction:column;gap:8px}
+  .kpi .ic{width:38px;height:38px;border-radius:10px;display:grid;place-items:center;font-size:18px}
+  .kpi .v{font-size:30px;font-weight:800;letter-spacing:-.03em;font-variant-numeric:tabular-nums;line-height:1}
+  .kpi .l{font-size:12.5px;color:var(--muted);font-weight:600}
+  .charts{display:grid;grid-template-columns:1fr 1.25fr;gap:16px;margin-bottom:22px}
+  .ctitle{font-size:14px;font-weight:800;margin:0 0 12px;display:flex;align-items:center;gap:8px}
+  .cbox{padding:18px}
+  .cv{position:relative;height:260px}
+
+  .tablebox{padding:18px}
+  .tbar{display:flex;gap:10px;align-items:center;margin-bottom:14px;flex-wrap:wrap}
+  .tbar input{max-width:280px}
+  table{width:100%;border-collapse:collapse;font-size:13.5px}
+  th{text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);font-weight:700;padding:10px 12px;border-bottom:2px solid var(--line)}
+  td{padding:11px 12px;border-bottom:1px solid var(--line)}
+  tr:hover td{background:#f7faf8}
+  td.num{font-variant-numeric:tabular-nums;font-weight:700;text-align:center}
+  .pill{display:inline-block;padding:2px 9px;border-radius:999px;font-size:11px;font-weight:700;margin:1px 2px}
+  .name{font-weight:700}
+  .email{font-size:12px;color:var(--muted)}
+  .tag{display:inline-block;padding:1px 8px;border-radius:6px;font-size:11px;font-weight:600;background:#eef4f0;color:var(--green-d);margin:1px}
+
+  .empty{text-align:center;padding:50px 20px;color:var(--muted)}
+  .empty .big{font-size:34px;margin-bottom:10px}
+  .note{font-size:12.5px;color:var(--muted);background:#fff8eb;border:1px solid #fde9bf;border-radius:10px;padding:11px 13px;margin-top:14px}
+  .err{background:#fef2f2;border-color:#fbcaca;color:#b91c1c}
+  .ok{background:#f0fdf4;border-color:#bbf7d0;color:#166534}
+  .loading{display:inline-block;width:15px;height:15px;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  @media(max-width:880px){.kpis{grid-template-columns:repeat(2,1fr)}.charts{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="logo">📊</div>
+    <div>
+      <h1>Painel Administrativo — App STEAM</h1>
+      <div class="sub" id="connState">Não conectado · configure o Supabase</div>
+    </div>
+    <div class="spacer"></div>
+    <button class="btn ghost" onclick="toggleConfig()">⚙️ Configurar</button>
+    <button class="btn" id="reloadBtn" onclick="loadAll()">↻ Atualizar</button>
+  </header>
+
+  <!-- CONFIG -->
+  <div class="panel" id="config">
+    <div class="cfg-section">Conexão Supabase</div>
+    <div class="cfg-grid">
+      <div><label>Supabase URL</label><input id="c_url" placeholder="https://xxxx.supabase.co"></div>
+      <div style="grid-column:span 2"><label>Chave anon (public)</label><input id="c_key" placeholder="eyJhbGciOi..."></div>
+    </div>
+
+    <div class="cfg-section">Tabela de usuários / cadastros</div>
+    <div class="cfg-grid">
+      <div><label>Tabela</label><input id="c_uTable" value="profiles"></div>
+      <div><label>Coluna nome</label><input id="c_uName" value="nome"></div>
+      <div><label>Coluna email</label><input id="c_uEmail" value="email"></div>
+      <div><label>Coluna data cadastro</label><input id="c_uCreated" value="created_at"></div>
+      <div><label>Coluna id</label><input id="c_uId" value="id"></div>
+    </div>
+
+    <div class="cfg-section">Tabela de atividades</div>
+    <div class="cfg-grid">
+      <div><label>Tabela</label><input id="c_aTable" value="atividades"></div>
+      <div><label>Coluna id do usuário</label><input id="c_aUser" value="user_id"></div>
+      <div><label>Coluna disciplina</label><input id="c_aDisc" value="disciplina"></div>
+      <div><label>Coluna data criação</label><input id="c_aCreated" value="created_at"></div>
+    </div>
+
+    <div class="cfg-section">Tabela de sessões (tempo online) — opcional</div>
+    <div class="cfg-grid">
+      <div><label>Tabela</label><input id="c_sTable" value="sessoes"></div>
+      <div><label>Coluna id do usuário</label><input id="c_sUser" value="user_id"></div>
+      <div><label>Coluna duração (segundos)</label><input id="c_sDur" value="duracao_segundos"></div>
+    </div>
+
+    <div class="cfg-actions">
+      <button class="btn" onclick="saveConfig()">💾 Salvar e conectar</button>
+      <span id="cfgMsg" style="font-size:13px;color:var(--muted)"></span>
+    </div>
+  </div>
+
+  <!-- KPIs -->
+  <div class="kpis" id="kpis">
+    <div class="panel kpi"><div class="ic" style="background:#e7f6ec;color:var(--green)">👥</div><div class="v" id="k_users">—</div><div class="l">Alunos cadastrados</div></div>
+    <div class="panel kpi"><div class="ic" style="background:#e7f0fb;color:var(--blue)">⚡</div><div class="v" id="k_acts">—</div><div class="l">Atividades geradas</div></div>
+    <div class="panel kpi"><div class="ic" style="background:#f3eafd;color:var(--violet)">📚</div><div class="v" id="k_disc">—</div><div class="l">Disciplinas</div></div>
+    <div class="panel kpi"><div class="ic" style="background:#fef0e0;color:var(--amber)">⏱️</div><div class="v" id="k_time">—</div><div class="l">Tempo online total</div></div>
+  </div>
+
+  <!-- CHARTS -->
+  <div class="charts">
+    <div class="panel cbox">
+      <p class="ctitle">📚 Atividades por disciplina</p>
+      <div class="cv"><canvas id="discChart"></canvas></div>
+    </div>
+    <div class="panel cbox">
+      <p class="ctitle">📈 Cadastros ao longo do tempo</p>
+      <div class="cv"><canvas id="timeChart"></canvas></div>
+    </div>
+  </div>
+
+  <!-- TABLE -->
+  <div class="panel tablebox">
+    <p class="ctitle">🧑‍🎓 Detalhe por aluno</p>
+    <div class="tbar">
+      <input id="search" placeholder="🔍 Buscar aluno por nome ou email..." oninput="renderTable()">
+      <div class="spacer"></div>
+      <span id="rowCount" style="font-size:12.5px;color:var(--muted)"></span>
+    </div>
+    <div id="tableArea">
+      <div class="empty"><div class="big">🔌</div>Configure o Supabase no botão <b>⚙️ Configurar</b> para carregar os dados.</div>
+    </div>
+  </div>
+
+  <div id="globalNote"></div>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+let sb=null, cfg={}, USERS=[], ACTS=[], SESS=[], discChart=null, timeChart=null;
+const PALETTE=['#16a34a','#2563eb','#f59e0b','#dc2626','#7c3aed','#0d9488','#db2777','#65a30d','#ea580c','#0891b2'];
+
+function lsGet(k){try{return localStorage.getItem(k)}catch(e){return null}}
+function lsSet(k,v){try{localStorage.setItem(k,v)}catch(e){}}
+
+function readForm(){
+  return {
+    url:$('c_url').value.trim(), key:$('c_key').value.trim(),
+    uTable:$('c_uTable').value.trim(), uName:$('c_uName').value.trim(), uEmail:$('c_uEmail').value.trim(),
+    uCreated:$('c_uCreated').value.trim(), uId:$('c_uId').value.trim(),
+    aTable:$('c_aTable').value.trim(), aUser:$('c_aUser').value.trim(), aDisc:$('c_aDisc').value.trim(), aCreated:$('c_aCreated').value.trim(),
+    sTable:$('c_sTable').value.trim(), sUser:$('c_sUser').value.trim(), sDur:$('c_sDur').value.trim()
+  };
+}
+function fillForm(c){for(const k in c){const map={url:'c_url',key:'c_key',uTable:'c_uTable',uName:'c_uName',uEmail:'c_uEmail',uCreated:'c_uCreated',uId:'c_uId',aTable:'c_aTable',aUser:'c_aUser',aDisc:'c_aDisc',aCreated:'c_aCreated',sTable:'c_sTable',sUser:'c_sUser',sDur:'c_sDur'};if(map[k]&&$(map[k]))$(map[k]).value=c[k]||'';}}
+
+function toggleConfig(){$('config').classList.toggle('open');}
+
+function saveConfig(){
+  cfg=readForm();
+  if(!cfg.url||!cfg.key){$('cfgMsg').textContent='Preencha URL e chave anon.';return;}
+  lsSet('steam_admin_cfg',JSON.stringify(cfg));
+  $('cfgMsg').textContent='Salvo ✓';
+  initClient();
+  loadAll();
+}
+function initClient(){ sb = supabase.createClient(cfg.url, cfg.key); }
+
+async function fetchAll(table, cols){
+  let from=0, size=1000, all=[];
+  while(true){
+    const {data,error}=await sb.from(table).select(cols).range(from,from+size-1);
+    if(error) throw error;
+    all=all.concat(data);
+    if(data.length<size) break;
+    from+=size;
+  }
+  return all;
+}
+
+function fmtTime(sec){
+  if(!sec||sec<=0) return '0m';
+  const h=Math.floor(sec/3600), m=Math.round((sec%3600)/60);
+  return h>0 ? `${h}h ${m}m` : `${m}m`;
+}
+
+async function loadAll(){
+  if(!sb){toggleConfig();$('cfgMsg').textContent='Configure a conexão primeiro.';return;}
+  const btn=$('reloadBtn'); btn.innerHTML='<span class="loading"></span> Carregando';
+  $('globalNote').innerHTML='';
+  let sessOK=true, sessMsg='';
+
+  try{
+    USERS = await fetchAll(cfg.uTable, `${cfg.uId},${cfg.uName},${cfg.uEmail},${cfg.uCreated}`);
+  }catch(e){
+    $('globalNote').innerHTML=`<div class="note err">Erro ao ler <b>${cfg.uTable}</b>: ${e.message}. Verifique o nome da tabela/colunas e as políticas RLS (a chave anon precisa de permissão de SELECT).</div>`;
+    btn.innerHTML='↻ Atualizar'; return;
+  }
+  try{
+    ACTS = await fetchAll(cfg.aTable, `${cfg.aUser},${cfg.aDisc},${cfg.aCreated}`);
+  }catch(e){
+    ACTS=[];
+    $('globalNote').innerHTML+=`<div class="note err">Erro ao ler atividades (<b>${cfg.aTable}</b>): ${e.message}</div>`;
+  }
+  try{
+    SESS = await fetchAll(cfg.sTable, `${cfg.sUser},${cfg.sDur}`);
+  }catch(e){
+    SESS=[]; sessOK=false;
+    sessMsg=`<div class="note">⏱️ Tabela de sessões <b>${cfg.sTable}</b> não encontrada — o "tempo online" não está sendo medido ainda.</div>`;
+  }
+
+  computeAndRender();
+  $('connState').textContent=`Conectado · ${cfg.url.replace('https://','')}`;
+  if(sessMsg) $('globalNote').innerHTML+=sessMsg;
+  btn.innerHTML='↻ Atualizar';
+}
+
+let TABLE_ROWS=[];
+function computeAndRender(){
+  const uId=cfg.uId, uName=cfg.uName, uEmail=cfg.uEmail, uCreated=cfg.uCreated;
+  const aUser=cfg.aUser, aDisc=cfg.aDisc, aCreated=cfg.aCreated;
+  const sUser=cfg.sUser, sDur=cfg.sDur;
+
+  const actByUser={}, discByUser={}, discCount={}, monthCount={};
+  ACTS.forEach(a=>{
+    const u=a[aUser];
+    actByUser[u]=(actByUser[u]||0)+1;
+    const d=(a[aDisc]||'—').toString().trim()||'—';
+    discCount[d]=(discCount[d]||0)+1;
+    if(!discByUser[u]) discByUser[u]=new Set();
+    discByUser[u].add(d);
+    if(a[aCreated]){const m=String(a[aCreated]).slice(0,7);monthCount[m]=(monthCount[m]||0)+1;}
+  });
+  const regByMonth={};
+  USERS.forEach(u=>{if(u[uCreated]){const m=String(u[uCreated]).slice(0,7);regByMonth[m]=(regByMonth[m]||0)+1;}});
+
+  const timeByUser={};
+  SESS.forEach(s=>{const u=s[sUser];timeByUser[u]=(timeByUser[u]||0)+(Number(s[sDur])||0);});
+
+  $('k_users').textContent=USERS.length;
+  $('k_acts').textContent=ACTS.length;
+  $('k_disc').textContent=Object.keys(discCount).length;
+  $('k_time').textContent=fmtTime(Object.values(timeByUser).reduce((a,b)=>a+b,0));
+
+  TABLE_ROWS = USERS.map(u=>({
+    nome:u[uName]||'(sem nome)', email:u[uEmail]||'—',
+    acts:actByUser[u[uId]]||0,
+    discs:[...(discByUser[u[uId]]||[])],
+    time:timeByUser[u[uId]]||0,
+    created:u[uCreated]?String(u[uCreated]).slice(0,10).split('-').reverse().join('/'):'—'
+  })).sort((a,b)=>b.acts-a.acts);
+  renderTable();
+
+  renderDisc(discCount);
+  renderTime(regByMonth);
+}
+
+function renderTable(){
+  const q=$('search').value.toLowerCase();
+  const rows=TABLE_ROWS.filter(r=>r.nome.toLowerCase().includes(q)||r.email.toLowerCase().includes(q));
+  $('rowCount').textContent=`${rows.length} aluno(s)`;
+  if(!rows.length){$('tableArea').innerHTML='<div class="empty">Nenhum aluno encontrado.</div>';return;}
+  let h='<table><thead><tr><th>Aluno</th><th>Disciplinas</th><th style="text-align:center">Atividades</th><th style="text-align:center">Tempo online</th><th>Cadastro</th></tr></thead><tbody>';
+  rows.forEach(r=>{
+    h+=`<tr>
+      <td><div class="name">${esc(r.nome)}</div><div class="email">${esc(r.email)}</div></td>
+      <td>${r.discs.length?r.discs.map(d=>`<span class="tag">${esc(d)}</span>`).join(''):'<span class="email">—</span>'}</td>
+      <td class="num">${r.acts}</td>
+      <td class="num">${r.time?fmtTime(r.time):'<span style="color:var(--muted);font-weight:400">—</span>'}</td>
+      <td>${r.created}</td>
+    </tr>`;
+  });
+  $('tableArea').innerHTML=h+'</tbody></table>';
+}
+function esc(s){return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+
+function renderDisc(map){
+  const labels=Object.keys(map), data=Object.values(map);
+  if(discChart) discChart.destroy();
+  if(!labels.length){$('discChart').parentElement.innerHTML='<div class="empty" style="padding:30px">Sem dados de disciplina.</div>';return;}
+  discChart=new Chart($('discChart'),{type:'doughnut',data:{labels,datasets:[{data,backgroundColor:labels.map((_,i)=>PALETTE[i%PALETTE.length]),borderWidth:2,borderColor:'#fff'}]},
+    options:{maintainAspectRatio:false,cutout:'58%',plugins:{legend:{position:'right',labels:{font:{family:'Manrope',size:12},boxWidth:12,padding:10}}}}});
+}
+function renderTime(map){
+  const labels=Object.keys(map).sort();
+  const data=labels.map(l=>map[l]);
+  const pretty=labels.map(l=>{const[y,m]=l.split('-');return `${m}/${y.slice(2)}`;});
+  if(timeChart) timeChart.destroy();
+  if(!labels.length){$('timeChart').parentElement.innerHTML='<div class="empty" style="padding:30px">Sem datas de cadastro.</div>';return;}
+  timeChart=new Chart($('timeChart'),{type:'line',data:{labels:pretty,datasets:[{label:'Cadastros',data,borderColor:'#16a34a',backgroundColor:'rgba(22,163,74,.12)',fill:true,tension:.35,pointBackgroundColor:'#16a34a',pointRadius:4}]},
+    options:{maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,ticks:{precision:0,font:{family:'Manrope'}}},x:{ticks:{font:{family:'Manrope'}}}}}});
+}
+
+(function(){
+  const saved=lsGet('steam_admin_cfg');
+  if(saved){try{cfg=JSON.parse(saved);fillForm(cfg);if(cfg.url&&cfg.key){initClient();loadAll();}else{$('config').classList.add('open');}}catch(e){$('config').classList.add('open');}}
+  else{$('config').classList.add('open');}
+})();
+</script>
+</body>
+</html>
