@@ -10,95 +10,186 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-  :root{
-    --bg:#f4f7f5; --card:#ffffff; --ink:#0f2e22; --muted:#5b6f66;
-    --line:#e3ece7; --green:#16a34a; --green-d:#0f7a37; --teal:#0d9488;
-    --amber:#f59e0b; --red:#dc2626; --blue:#2563eb; --violet:#7c3aed;
-    --shadow:0 1px 2px rgba(15,46,34,.04),0 8px 24px rgba(15,46,34,.06);
-    --radius:16px;
-  }
-  *{box-sizing:border-box}
-  body{margin:0;font-family:'Manrope',system-ui,sans-serif;background:
-    radial-gradient(1200px 500px at 100% -10%,rgba(22,163,74,.08),transparent 60%),
-    var(--bg);color:var(--ink);-webkit-font-smoothing:antialiased}
-  .wrap{max-width:1180px;margin:0 auto;padding:24px 18px 60px}
-  header{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:22px}
-  .logo{width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,var(--green),var(--teal));
-    display:grid;place-items:center;color:#fff;font-size:22px;box-shadow:var(--shadow)}
-  h1{font-size:20px;font-weight:800;margin:0;letter-spacing:-.02em}
-  .sub{font-size:12.5px;color:var(--muted);margin-top:2px}
-  .spacer{flex:1}
-  button{font-family:inherit;cursor:pointer;border:none;border-radius:10px;font-weight:600}
-  .btn{padding:9px 14px;font-size:13px;background:var(--ink);color:#fff;display:inline-flex;gap:7px;align-items:center}
-  .btn.ghost{background:#fff;color:var(--ink);border:1px solid var(--line)}
-  .btn:active{transform:translateY(1px)}
+:root{
+  --bg:#f4f7f5;--card:#ffffff;--ink:#0f2e22;--muted:#5b6f66;
+  --line:#e3ece7;--input-bg:#fbfdfc;--hover:#f7faf8;
+  --green:#16a34a;--green-d:#0f7a37;--teal:#0d9488;
+  --amber:#f59e0b;--red:#dc2626;--blue:#2563eb;--violet:#7c3aed;
+  --shadow:0 1px 2px rgba(15,46,34,.04),0 8px 24px rgba(15,46,34,.06);
+  --radius:16px;
+}
+.dark{
+  --bg:#0c1a12;--card:#152b1d;--ink:#e2f0e8;--muted:#7aaa8c;
+  --line:#1e3828;--input-bg:#1a3226;--hover:#1e3828;
+  --shadow:0 1px 2px rgba(0,0,0,.25),0 8px 24px rgba(0,0,0,.35);
+}
+*{box-sizing:border-box;transition:background .2s,color .2s,border-color .2s}
+body{margin:0;font-family:'Manrope',system-ui,sans-serif;background:
+  radial-gradient(1200px 500px at 100% -10%,rgba(22,163,74,.08),transparent 60%),
+  var(--bg);color:var(--ink);-webkit-font-smoothing:antialiased;min-height:100vh}
+button{font-family:inherit;cursor:pointer;border:none;border-radius:10px;font-weight:600;transition:opacity .15s,transform .1s}
+.btn{padding:9px 14px;font-size:13px;background:var(--ink);color:var(--bg);display:inline-flex;gap:7px;align-items:center}
+.btn.ghost{background:var(--card);color:var(--ink);border:1px solid var(--line)}
+.btn.green{background:var(--green);color:#fff}
+.btn.sm{padding:7px 11px;font-size:12px}
+.btn:active{transform:translateY(1px)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+input,select{font-family:inherit;background:var(--input-bg);color:var(--ink);border:1px solid var(--line);border-radius:9px;padding:9px 11px;font-size:13.5px;width:100%}
+input:focus,select:focus{outline:none;border-color:var(--green)}
+select{cursor:pointer}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
 
-  .panel{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
+/* ── AUTH ── */
+#authWrap{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:24px}
+.auth-card{width:100%;max-width:400px;padding:36px 32px;border-radius:24px}
+.auth-logo{width:52px;height:52px;border-radius:14px;background:linear-gradient(135deg,var(--green),var(--teal));
+  display:grid;place-items:center;color:#fff;font-size:26px;margin:0 auto 20px}
+.auth-title{text-align:center;font-size:22px;font-weight:800;margin:0 0 4px;letter-spacing:-.02em}
+.auth-sub{text-align:center;font-size:13px;color:var(--muted);margin:0 0 28px}
+.auth-field{margin-bottom:14px}
+label.lbl{display:block;font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px}
+.auth-err{font-size:12.5px;color:var(--red);background:#fef2f2;border:1px solid #fbcaca;border-radius:9px;padding:9px 12px;margin-top:12px;display:none}
+.theme-fab{position:fixed;top:16px;right:16px;background:var(--card);border:1px solid var(--line);
+  border-radius:999px;padding:7px 13px;font-size:12px;font-weight:700;color:var(--ink);cursor:pointer;z-index:200;box-shadow:var(--shadow)}
 
-  .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:22px}
-  .kpi{padding:18px;display:flex;flex-direction:column;gap:8px}
-  .kpi .ic{width:38px;height:38px;border-radius:10px;display:grid;place-items:center;font-size:18px}
-  .kpi .v{font-size:30px;font-weight:800;letter-spacing:-.03em;font-variant-numeric:tabular-nums;line-height:1}
-  .kpi .l{font-size:12.5px;color:var(--muted);font-weight:600}
+/* ── DASHBOARD ── */
+.wrap{max-width:1200px;margin:0 auto;padding:24px 18px 60px}
+header{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:22px}
+.logo{width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,var(--green),var(--teal));
+  display:grid;place-items:center;color:#fff;font-size:22px;box-shadow:var(--shadow);flex-shrink:0}
+.hd{flex:1;min-width:120px}
+h1{font-size:19px;font-weight:800;margin:0;letter-spacing:-.02em}
+.sub{font-size:12px;color:var(--muted);margin-top:2px}
+.hactions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 
-  .charts{display:grid;grid-template-columns:1fr 1.25fr;gap:16px;margin-bottom:22px}
-  .ctitle{font-size:14px;font-weight:800;margin:0 0 12px;display:flex;align-items:center;gap:8px}
-  .cbox{padding:18px}
-  .cv{position:relative;height:260px}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:22px}
+.kpi{padding:18px;display:flex;flex-direction:column;gap:8px}
+.kpi .ic{width:38px;height:38px;border-radius:10px;display:grid;place-items:center;font-size:18px}
+.kpi .v{font-size:28px;font-weight:800;letter-spacing:-.03em;font-variant-numeric:tabular-nums;line-height:1}
+.kpi .l{font-size:12px;color:var(--muted);font-weight:600}
 
-  .tablebox{padding:18px}
-  .tbar{display:flex;gap:10px;align-items:center;margin-bottom:14px;flex-wrap:wrap}
-  .tbar input{max-width:280px;padding:9px 11px;border:1px solid var(--line);border-radius:9px;font-family:inherit;font-size:13.5px;background:#fbfdfc;color:var(--ink)}
-  .tbar input:focus{outline:none;border-color:var(--green)}
-  table{width:100%;border-collapse:collapse;font-size:13.5px}
-  th{text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);font-weight:700;padding:10px 12px;border-bottom:2px solid var(--line)}
-  td{padding:11px 12px;border-bottom:1px solid var(--line)}
-  tr:hover td{background:#f7faf8}
-  td.num{font-variant-numeric:tabular-nums;font-weight:700;text-align:center}
-  .name{font-weight:700}
-  .email{font-size:12px;color:var(--muted)}
-  .tag{display:inline-block;padding:1px 8px;border-radius:6px;font-size:11px;font-weight:600;background:#eef4f0;color:var(--green-d);margin:1px}
-  .tag-area{background:#e8f0fe;color:#1d4ed8}
-  .tag-school{background:#f3f4f6;color:#374151}
+.charts{display:grid;grid-template-columns:1fr 1.25fr;gap:16px;margin-bottom:22px}
+.ctitle{font-size:14px;font-weight:800;margin:0 0 12px;display:flex;align-items:center;gap:8px}
+.cbox{padding:18px}
+.cv{position:relative;height:240px}
 
-  .empty{text-align:center;padding:50px 20px;color:var(--muted)}
-  .empty .big{font-size:34px;margin-bottom:10px}
-  .note{font-size:12.5px;color:var(--muted);background:#fff8eb;border:1px solid #fde9bf;border-radius:10px;padding:11px 13px;margin-top:14px}
-  .err{background:#fef2f2;border-color:#fbcaca;color:#b91c1c}
-  .info{background:#eff6ff;border-color:#bfdbfe;color:#1e40af}
-  .loading{display:inline-block;width:15px;height:15px;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite}
-  @keyframes spin{to{transform:rotate(360deg)}}
-  @media(max-width:880px){.kpis{grid-template-columns:repeat(2,1fr)}.charts{grid-template-columns:1fr}}
+.tablebox{padding:18px}
+.tbar{display:flex;gap:10px;align-items:center;margin-bottom:14px;flex-wrap:wrap}
+.tbar input{max-width:260px}
+.tbar select{max-width:160px}
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;font-size:10.5px;text-transform:uppercase;letter-spacing:.05em;
+  color:var(--muted);font-weight:700;padding:10px 12px;border-bottom:2px solid var(--line);
+  cursor:pointer;user-select:none;white-space:nowrap}
+th:hover{color:var(--ink)}
+th .sort-arrow{margin-left:4px;opacity:.4}
+th.active .sort-arrow{opacity:1;color:var(--green)}
+td{padding:10px 12px;border-bottom:1px solid var(--line);vertical-align:middle}
+tr:hover td{background:var(--hover)}
+td.num{font-variant-numeric:tabular-nums;font-weight:700;text-align:center}
+.name{font-weight:700}
+.email{font-size:11.5px;color:var(--muted)}
+.tag{display:inline-block;padding:1px 7px;border-radius:6px;font-size:11px;font-weight:600;
+  background:#eef4f0;color:var(--green-d);margin:1px}
+.dark .tag{background:#1e3e28}
+.tag-area{background:#e8f0fe;color:#1d4ed8}
+.dark .tag-area{background:#1e2f5e;color:#93c5fd}
+.tag-school{background:#f3f4f6;color:#374151}
+.dark .tag-school{background:#1e2a20;color:var(--muted)}
+.last-seen{font-size:12px;color:var(--muted)}
 
-  /* sql modal */
-  .modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.4);display:none;place-items:center;z-index:100}
-  .modal-bg.open{display:grid}
-  .modal{background:#fff;border-radius:16px;padding:24px;max-width:640px;width:calc(100% - 32px);max-height:80vh;overflow:auto}
-  .modal h2{margin:0 0 8px;font-size:17px}
-  .modal p{font-size:13px;color:var(--muted);margin:0 0 16px}
-  pre{background:#0f2e22;color:#a7f3c0;padding:16px;border-radius:10px;font-size:12px;overflow-x:auto;white-space:pre-wrap;word-break:break-word}
-  .modal-close{float:right;background:none;border:none;font-size:20px;cursor:pointer;color:var(--muted)}
+.empty{text-align:center;padding:50px 20px;color:var(--muted)}
+.empty .big{font-size:36px;margin-bottom:10px}
+.note{font-size:12.5px;color:var(--muted);background:#fff8eb;border:1px solid #fde9bf;
+  border-radius:10px;padding:11px 13px;margin-top:14px}
+.dark .note{background:#2a1f0a;border-color:#5a3e00}
+.err{background:#fef2f2;border-color:#fbcaca;color:#b91c1c}
+.dark .err{background:#2a0a0a;border-color:#5a0000;color:#fca5a5}
+.info{background:#eff6ff;border-color:#bfdbfe;color:#1e40af}
+.dark .info{background:#0a1a3a;border-color:#1e3a7a;color:#93c5fd}
+.loading{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,.3);
+  border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+@media(max-width:900px){
+  .kpis{grid-template-columns:repeat(2,1fr)}
+  .charts{grid-template-columns:1fr}
+  .hactions{width:100%}
+}
 </style>
 </head>
 <body>
+
+<!-- THEME TOGGLE (visible on auth screen) -->
+<button class="theme-fab" id="themeFab" onclick="toggleTheme()">🌙 Escuro</button>
+
+<!-- ── AUTH ── -->
+<div id="authWrap">
+  <div class="panel auth-card">
+    <div class="auth-logo">📊</div>
+    <h2 class="auth-title">Painel STEAM</h2>
+    <p class="auth-sub" id="authSub">Acesso restrito ao administrador</p>
+
+    <!-- REGISTER -->
+    <div id="registerBox">
+      <div class="auth-field"><label class="lbl">Seu nome</label><input id="r_name" placeholder="Ex: Marcel Dancini" autocomplete="name"></div>
+      <div class="auth-field"><label class="lbl">Senha</label><input id="r_pass" type="password" placeholder="Crie uma senha forte" autocomplete="new-password"></div>
+      <div class="auth-field"><label class="lbl">Confirmar senha</label><input id="r_pass2" type="password" placeholder="Repita a senha" autocomplete="new-password"></div>
+      <button class="btn green" style="width:100%;justify-content:center;margin-top:4px" onclick="doRegister()">Criar conta e entrar</button>
+      <div class="auth-err" id="r_err"></div>
+    </div>
+
+    <!-- LOGIN -->
+    <div id="loginBox" style="display:none">
+      <div class="auth-field" style="margin-bottom:20px"><label class="lbl" id="loginLabel">Senha</label><input id="l_pass" type="password" placeholder="Digite sua senha" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()"></div>
+      <button class="btn green" style="width:100%;justify-content:center" onclick="doLogin()">Entrar</button>
+      <div class="auth-err" id="l_err"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ── DASHBOARD ── -->
+<div id="dashWrap" style="display:none">
 <div class="wrap">
+
   <header>
     <div class="logo">📊</div>
-    <div>
+    <div class="hd">
       <h1>Painel Administrativo — App STEAM</h1>
-      <div class="sub" id="connState">Conectando ao Supabase…</div>
+      <div class="sub" id="connState">Conectando…</div>
     </div>
-    <div class="spacer"></div>
-    <button class="btn ghost" onclick="showSql()">🔑 Configurar RLS</button>
-    <button class="btn" id="reloadBtn" onclick="loadAll()">↻ Atualizar</button>
+    <div class="hactions">
+      <select id="periodSel" onchange="applyPeriod()" style="width:auto;padding:8px 10px;font-size:12.5px">
+        <option value="0">Todo período</option>
+        <option value="7">Últimos 7 dias</option>
+        <option value="30">Últimos 30 dias</option>
+        <option value="90">Últimos 90 dias</option>
+      </select>
+      <button class="btn ghost sm" id="themeDash" onclick="toggleTheme()">🌙 Escuro</button>
+      <button class="btn ghost sm" onclick="exportCSV()">⬇ CSV</button>
+      <button class="btn sm" id="reloadBtn" onclick="loadAll()">↻ Atualizar</button>
+      <button class="btn ghost sm" onclick="doLogout()">Sair</button>
+    </div>
   </header>
 
   <!-- KPIs -->
   <div class="kpis">
-    <div class="panel kpi"><div class="ic" style="background:#e7f6ec;color:var(--green)">👥</div><div class="v" id="k_users">—</div><div class="l">Usuários cadastrados</div></div>
-    <div class="panel kpi"><div class="ic" style="background:#e7f0fb;color:var(--blue)">📁</div><div class="v" id="k_projs">—</div><div class="l">Projetos criados</div></div>
-    <div class="panel kpi"><div class="ic" style="background:#f3eafd;color:var(--violet)">🔬</div><div class="v" id="k_areas">—</div><div class="l">Áreas STEAM usadas</div></div>
-    <div class="panel kpi"><div class="ic" style="background:#fef0e0;color:var(--amber)">⚡</div><div class="v" id="k_events">—</div><div class="l">Eventos de uso</div></div>
+    <div class="panel kpi">
+      <div class="ic" style="background:#e7f6ec;color:var(--green)">👥</div>
+      <div class="v" id="k_users">—</div><div class="l">Usuários cadastrados</div>
+    </div>
+    <div class="panel kpi">
+      <div class="ic" style="background:#e7f0fb;color:var(--blue)">📁</div>
+      <div class="v" id="k_projs">—</div><div class="l">Projetos criados</div>
+    </div>
+    <div class="panel kpi">
+      <div class="ic" style="background:#f3eafd;color:var(--violet)">📅</div>
+      <div class="v" id="k_active">—</div><div class="l">Ativos este mês</div>
+    </div>
+    <div class="panel kpi">
+      <div class="ic" style="background:#fef0e0;color:var(--amber)">⚡</div>
+      <div class="v" id="k_events">—</div><div class="l">Eventos de uso</div>
+    </div>
   </div>
 
   <!-- CHARTS -->
@@ -108,7 +199,7 @@
       <div class="cv"><canvas id="areaChart"></canvas></div>
     </div>
     <div class="panel cbox">
-      <p class="ctitle">📈 Cadastros ao longo do tempo</p>
+      <p class="ctitle">📈 Usuários cadastrados por mês</p>
       <div class="cv"><canvas id="timeChart"></canvas></div>
     </div>
   </div>
@@ -117,57 +208,125 @@
   <div class="panel tablebox">
     <p class="ctitle">🧑‍🏫 Detalhe por usuário</p>
     <div class="tbar">
-      <input id="search" placeholder="🔍 Buscar por nome, e-mail ou escola…" oninput="renderTable()">
-      <div class="spacer"></div>
-      <span id="rowCount" style="font-size:12.5px;color:var(--muted)"></span>
+      <input id="search" placeholder="🔍 Nome, e-mail ou escola…" oninput="renderTable()" style="max-width:260px">
+      <div style="flex:1"></div>
+      <span id="rowCount" style="font-size:12px;color:var(--muted)"></span>
     </div>
-    <div id="tableArea">
-      <div class="empty"><div class="big">⏳</div>Carregando dados…</div>
+    <div class="table-wrap">
+      <div id="tableArea"><div class="empty"><div class="big">⏳</div>Carregando dados…</div></div>
     </div>
   </div>
 
   <div id="globalNote"></div>
 </div>
-
-<!-- SQL MODAL -->
-<div class="modal-bg" id="sqlModal">
-  <div class="modal">
-    <button class="modal-close" onclick="hideSql()">✕</button>
-    <h2>🔑 Liberar leitura para o painel</h2>
-    <p>Execute este SQL no <b>Supabase → SQL Editor</b> do projeto steam-planner para que o painel consiga ler os dados:</p>
-    <pre id="sqlCode"></pre>
-    <button class="btn" style="margin-top:14px" onclick="copySql()">📋 Copiar SQL</button>
-    <span id="copyMsg" style="font-size:13px;color:var(--muted);margin-left:10px"></span>
-  </div>
 </div>
 
 <script>
 const SUPABASE_URL = 'https://hgfsvequhesliqknmysz.supabase.co';
 const SUPABASE_ANON = 'sb_publishable_B2BNeoJBasP8c5S-2TY3AQ_MgBj8fv7';
-
-const SQL_RLS = `-- Execute no Supabase SQL Editor do projeto steam-planner
--- Permite que o painel admin leia todos os perfis
-create policy if not exists "Painel admin le perfis"
-  on public.app_profiles for select using (true);
-
--- Permite que o painel admin leia todos os projetos
-create policy if not exists "Painel admin le projetos"
-  on public.projects for select using (true);
-
--- Permite que o painel admin leia todos os eventos
-create policy if not exists "Painel admin le eventos"
-  on public.app_usage_events for select using (true);`;
-
 const PALETTE = ['#16a34a','#2563eb','#f59e0b','#dc2626','#7c3aed','#0d9488','#db2777','#65a30d','#ea580c','#0891b2'];
 const $ = id => document.getElementById(id);
 
 let sb, USERS=[], PROJECTS=[], EVENTS=[], TABLE_ROWS=[];
 let areaChart=null, timeChart=null;
+let sortCol='projs', sortDir=-1;
 
-function showSql(){ $('sqlCode').textContent=SQL_RLS; $('sqlModal').classList.add('open'); }
-function hideSql(){ $('sqlModal').classList.remove('open'); }
-function copySql(){ navigator.clipboard.writeText(SQL_RLS).then(()=>{ $('copyMsg').textContent='Copiado ✓'; setTimeout(()=>$('copyMsg').textContent='',2000); }); }
+/* ─── THEME ─── */
+function loadTheme(){
+  const t = localStorage.getItem('steam_theme') || 'light';
+  document.body.classList.toggle('dark', t==='dark');
+  syncThemeBtns();
+}
+function toggleTheme(){
+  const dark = document.body.classList.toggle('dark');
+  localStorage.setItem('steam_theme', dark?'dark':'light');
+  syncThemeBtns();
+  if(timeChart || areaChart) rebuildCharts();
+}
+function syncThemeBtns(){
+  const dark = document.body.classList.contains('dark');
+  const label = dark ? '☀️ Claro' : '🌙 Escuro';
+  $('themeFab').textContent = label;
+  const d = $('themeDash'); if(d) d.textContent = label;
+}
+function rebuildCharts(){
+  const area={}, reg={};
+  TABLE_ROWS.forEach(r=>{
+    r.steamAreas.forEach(a=>{ area[a]=(area[a]||0)+r.projs; });
+  });
+  USERS.forEach(u=>{ if(u.created_at){ const m=String(u.created_at).slice(0,7); reg[m]=(reg[m]||0)+1; } });
+  renderArea(area);
+  renderTime(reg);
+}
 
+/* ─── CRYPTO ─── */
+async function hashPass(p){
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(p));
+  return [...new Uint8Array(buf)].map(b=>b.toString(16).padStart(2,'0')).join('');
+}
+
+/* ─── AUTH ─── */
+function showErr(id, msg){ const el=$(id); el.textContent=msg; el.style.display='block'; }
+function hideErr(id){ $(id).style.display='none'; }
+
+function initAuth(){
+  const admin = JSON.parse(localStorage.getItem('steam_admin')||'null');
+  if(!admin){
+    $('authSub').textContent='Crie sua conta de administrador (apenas uma conta permitida)';
+    $('registerBox').style.display='';
+    $('loginBox').style.display='none';
+  } else {
+    $('authSub').textContent=`Bem-vindo, ${admin.name}`;
+    $('loginLabel').textContent=`Senha de ${admin.name}`;
+    $('registerBox').style.display='none';
+    $('loginBox').style.display='';
+    if(localStorage.getItem('steam_session')==='1') enterDash();
+  }
+}
+
+async function doRegister(){
+  hideErr('r_err');
+  const name=$('r_name').value.trim();
+  const pass=$('r_pass').value;
+  const pass2=$('r_pass2').value;
+  if(!name) return showErr('r_err','Digite seu nome.');
+  if(pass.length<6) return showErr('r_err','Senha mínima de 6 caracteres.');
+  if(pass!==pass2) return showErr('r_err','As senhas não coincidem.');
+  const hash = await hashPass(pass);
+  localStorage.setItem('steam_admin', JSON.stringify({name, hash}));
+  localStorage.setItem('steam_session','1');
+  enterDash(name);
+}
+
+async function doLogin(){
+  hideErr('l_err');
+  const pass=$('l_pass').value;
+  if(!pass) return showErr('l_err','Digite sua senha.');
+  const admin = JSON.parse(localStorage.getItem('steam_admin'));
+  const hash = await hashPass(pass);
+  if(hash!==admin.hash) return showErr('l_err','Senha incorreta.');
+  localStorage.setItem('steam_session','1');
+  enterDash(admin.name);
+}
+
+function doLogout(){
+  localStorage.removeItem('steam_session');
+  $('l_pass').value='';
+  $('dashWrap').style.display='none';
+  $('authWrap').style.display='flex';
+  $('themeFab').style.display='';
+}
+
+function enterDash(name){
+  $('authWrap').style.display='none';
+  $('dashWrap').style.display='';
+  $('themeFab').style.display='none';
+  syncThemeBtns();
+  sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+  loadAll();
+}
+
+/* ─── SUPABASE ─── */
 async function fetchAll(table, cols){
   let from=0, all=[];
   while(true){
@@ -182,39 +341,39 @@ async function fetchAll(table, cols){
 
 async function loadAll(){
   const btn=$('reloadBtn');
-  btn.innerHTML='<span class="loading"></span> Carregando';
+  btn.innerHTML='<span class="loading"></span>';
   $('globalNote').innerHTML='';
   let notes='';
 
   try{
-    USERS = await fetchAll('app_profiles','id,name,email,school,area,created_at');
+    USERS = await fetchAll('app_profiles','id,name,email,school,area,created_at,last_seen_at');
   }catch(e){
-    $('globalNote').innerHTML=`<div class="note err">Erro ao ler <b>app_profiles</b>: ${esc(e.message)}<br>Clique em <b>🔑 Configurar RLS</b> e execute o SQL no Supabase para liberar o acesso.</div>`;
+    $('globalNote').innerHTML=`<div class="note err">Erro ao ler <b>app_profiles</b>: ${esc(e.message)}</div>`;
     btn.innerHTML='↻ Atualizar'; return;
   }
-
   try{
     PROJECTS = await fetchAll('projects','id,owner_id,title,theme,grade,steam,created_at');
   }catch(e){
     PROJECTS=[];
     notes+=`<div class="note err">Erro ao ler <b>projects</b>: ${esc(e.message)}</div>`;
   }
-
   try{
     EVENTS = await fetchAll('app_usage_events','user_id,event_type,created_at');
   }catch(e){
     EVENTS=[];
-    notes+=`<div class="note info">ℹ️ Tabela <b>app_usage_events</b> sem acesso — eventos de uso não disponíveis.</div>`;
+    notes+=`<div class="note info">ℹ️ Eventos de uso indisponíveis.</div>`;
   }
 
   computeAndRender();
-  $('connState').textContent=`Conectado · ${SUPABASE_URL.replace('https://','')}`;
+  $('connState').textContent=`Conectado · ${USERS.length} usuários · atualizado ${new Date().toLocaleTimeString('pt-BR')}`;
   if(notes) $('globalNote').innerHTML=notes;
   btn.innerHTML='↻ Atualizar';
 }
 
+/* ─── COMPUTE ─── */
 function computeAndRender(){
-  const projByUser={}, areasByUser={}, areaCount={}, eventsByUser={}, regByMonth={};
+  const projByUser={}, areasByUser={}, areaCount={}, eventsByUser={};
+  const now=new Date(), monthStart=new Date(now.getFullYear(),now.getMonth(),1);
 
   PROJECTS.forEach(p=>{
     const u=p.owner_id;
@@ -226,17 +385,17 @@ function computeAndRender(){
       if(!areasByUser[u]) areasByUser[u]=new Set();
       areasByUser[u].add(a);
     });
-    if(p.created_at){
-      const m=String(p.created_at).slice(0,7);
-      regByMonth[m]=(regByMonth[m]||0)+1;
-    }
   });
 
-  EVENTS.forEach(e=>{ const u=e.user_id; eventsByUser[u]=(eventsByUser[u]||0)+1; });
+  EVENTS.forEach(e=>{ eventsByUser[e.user_id]=(eventsByUser[e.user_id]||0)+1; });
+
+  const activeThisMonth=new Set(
+    PROJECTS.filter(p=>new Date(p.created_at)>=monthStart).map(p=>p.owner_id)
+  ).size;
 
   $('k_users').textContent=USERS.length;
   $('k_projs').textContent=PROJECTS.length;
-  $('k_areas').textContent=Object.keys(areaCount).length;
+  $('k_active').textContent=activeThisMonth;
   $('k_events').textContent=EVENTS.length;
 
   TABLE_ROWS=USERS.map(u=>({
@@ -245,32 +404,70 @@ function computeAndRender(){
     escola: u.school||'—',
     area: u.area||'—',
     projs: projByUser[u.id]||0,
-    steamAreas: [...(areasByUser[u.id]||[])],
+    steamAreas:[...(areasByUser[u.id]||[])],
     events: eventsByUser[u.id]||0,
-    created: u.created_at?String(u.created_at).slice(0,10).split('-').reverse().join('/'):'—'
-  })).sort((a,b)=>b.projs-a.projs);
+    lastSeenRaw: u.last_seen_at||null,
+    lastSeen: relTime(u.last_seen_at),
+    created: u.created_at?String(u.created_at).slice(0,10).split('-').reverse().join('/'):'—',
+    createdRaw: u.created_at||null
+  }));
 
-  renderTable();
+  applyPeriod();
+
+  // charts: use USERS data for registrations
+  const regByMonth={};
+  USERS.forEach(u=>{ if(u.created_at){ const m=String(u.created_at).slice(0,7); regByMonth[m]=(regByMonth[m]||0)+1; } });
   renderArea(areaCount);
   renderTime(regByMonth);
 }
 
-function renderTable(){
+/* ─── PERIOD FILTER ─── */
+function applyPeriod(){
+  const days=parseInt($('periodSel').value)||0;
+  if(days===0){ renderTable(); return; }
+  const cutoff=new Date(Date.now()-days*86400000);
+  const filtered=TABLE_ROWS.filter(r=>r.createdRaw&&new Date(r.createdRaw)>=cutoff);
+  renderTable(filtered);
+}
+
+/* ─── TABLE ─── */
+function renderTable(rows){
+  if(!rows) rows=[...TABLE_ROWS];
   const q=$('search').value.toLowerCase();
-  const rows=TABLE_ROWS.filter(r=>
+  rows=rows.filter(r=>
     r.nome.toLowerCase().includes(q)||
     r.email.toLowerCase().includes(q)||
     r.escola.toLowerCase().includes(q)
   );
+  // sort
+  rows.sort((a,b)=>{
+    const va=a[sortCol], vb=b[sortCol];
+    if(typeof va==='number') return sortDir*(va-vb);
+    return sortDir*String(va).localeCompare(String(vb),'pt');
+  });
   $('rowCount').textContent=`${rows.length} usuário(s)`;
   if(!rows.length){$('tableArea').innerHTML='<div class="empty">Nenhum usuário encontrado.</div>';return;}
-  let h=`<table><thead><tr>
-    <th>Usuário</th><th>Escola</th><th>Área</th>
-    <th style="text-align:center">Projetos</th>
-    <th>Áreas STEAM usadas</th>
-    <th style="text-align:center">Eventos</th>
-    <th>Cadastro</th>
-  </tr></thead><tbody>`;
+
+  const cols=[
+    {key:'nome',label:'Usuário'},
+    {key:'escola',label:'Escola'},
+    {key:'area',label:'Área'},
+    {key:'projs',label:'Projetos'},
+    {key:'steamAreas',label:'Áreas STEAM',nosort:true},
+    {key:'events',label:'Eventos'},
+    {key:'lastSeen',label:'Último acesso'},
+    {key:'created',label:'Cadastro'}
+  ];
+
+  let h='<table><thead><tr>';
+  cols.forEach(c=>{
+    const active=sortCol===c.key?'active':'';
+    const arrow=c.nosort?'':` <span class="sort-arrow">${sortCol===c.key?(sortDir>0?'▲':'▼'):'↕'}</span>`;
+    const click=c.nosort?'':` onclick="setSort('${c.key}')"`;
+    h+=`<th class="${active}"${click}>${c.label}${arrow}</th>`;
+  });
+  h+='</tr></thead><tbody>';
+
   rows.forEach(r=>{
     h+=`<tr>
       <td><div class="name">${esc(r.nome)}</div><div class="email">${esc(r.email)}</div></td>
@@ -279,42 +476,90 @@ function renderTable(){
       <td class="num">${r.projs}</td>
       <td>${r.steamAreas.length?r.steamAreas.map(a=>`<span class="tag">${esc(a)}</span>`).join(''):'<span class="email">—</span>'}</td>
       <td class="num">${r.events||'—'}</td>
+      <td class="last-seen">${r.lastSeen}</td>
       <td>${r.created}</td>
     </tr>`;
   });
   $('tableArea').innerHTML=h+'</tbody></table>';
 }
 
-function esc(s){return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+function setSort(col){
+  if(sortCol===col) sortDir*=-1; else { sortCol=col; sortDir=-1; }
+  applyPeriod();
+}
 
+/* ─── CHARTS ─── */
+function chartColors(){
+  return document.body.classList.contains('dark')
+    ? {grid:'rgba(255,255,255,.06)',tick:'#7aaa8c'}
+    : {grid:'rgba(0,0,0,.05)',tick:'#5b6f66'};
+}
 function renderArea(map){
   const labels=Object.keys(map).sort((a,b)=>map[b]-map[a]);
   const data=labels.map(l=>map[l]);
   if(areaChart) areaChart.destroy();
-  if(!labels.length){$('areaChart').parentElement.innerHTML='<div class="empty" style="padding:30px">Sem dados de área STEAM.</div>';return;}
-  areaChart=new Chart($('areaChart'),{
+  const canvas=$('areaChart');
+  if(!canvas) return;
+  if(!labels.length){canvas.parentElement.innerHTML='<div class="empty" style="padding:30px">Sem dados de área STEAM.</div>';return;}
+  areaChart=new Chart(canvas,{
     type:'doughnut',
-    data:{labels,datasets:[{data,backgroundColor:labels.map((_,i)=>PALETTE[i%PALETTE.length]),borderWidth:2,borderColor:'#fff'}]},
-    options:{maintainAspectRatio:false,cutout:'58%',plugins:{legend:{position:'right',labels:{font:{family:'Manrope',size:12},boxWidth:12,padding:10}}}}
+    data:{labels,datasets:[{data,backgroundColor:labels.map((_,i)=>PALETTE[i%PALETTE.length]),borderWidth:2,borderColor:document.body.classList.contains('dark')?'#152b1d':'#fff'}]},
+    options:{maintainAspectRatio:false,cutout:'58%',plugins:{legend:{position:'right',labels:{color:chartColors().tick,font:{family:'Manrope',size:12},boxWidth:12,padding:10}}}}
   });
 }
-
 function renderTime(map){
   const labels=Object.keys(map).sort();
   const data=labels.map(l=>map[l]);
   const pretty=labels.map(l=>{const[y,m]=l.split('-');return `${m}/${y.slice(2)}`;});
   if(timeChart) timeChart.destroy();
-  if(!labels.length){$('timeChart').parentElement.innerHTML='<div class="empty" style="padding:30px">Sem dados de cadastro.</div>';return;}
-  timeChart=new Chart($('timeChart'),{
+  const canvas=$('timeChart');
+  if(!canvas) return;
+  if(!labels.length){canvas.parentElement.innerHTML='<div class="empty" style="padding:30px">Sem dados de cadastro.</div>';return;}
+  const c=chartColors();
+  timeChart=new Chart(canvas,{
     type:'line',
-    data:{labels:pretty,datasets:[{label:'Projetos criados',data,borderColor:'#16a34a',backgroundColor:'rgba(22,163,74,.12)',fill:true,tension:.35,pointBackgroundColor:'#16a34a',pointRadius:4}]},
-    options:{maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,ticks:{precision:0,font:{family:'Manrope'}}},x:{ticks:{font:{family:'Manrope'}}}}}
+    data:{labels:pretty,datasets:[{label:'Cadastros',data,borderColor:'#16a34a',backgroundColor:'rgba(22,163,74,.12)',fill:true,tension:.35,pointBackgroundColor:'#16a34a',pointRadius:4}]},
+    options:{maintainAspectRatio:false,plugins:{legend:{display:false}},
+      scales:{y:{beginAtZero:true,grid:{color:c.grid},ticks:{color:c.tick,precision:0,font:{family:'Manrope'}}},
+              x:{grid:{color:c.grid},ticks:{color:c.tick,font:{family:'Manrope'}}}}}
   });
 }
 
-// boot
-sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
-loadAll();
+/* ─── CSV EXPORT ─── */
+function exportCSV(){
+  const header=['Nome','Email','Escola','Área','Projetos','Áreas STEAM','Eventos','Último acesso','Cadastro'];
+  const days=parseInt($('periodSel').value)||0;
+  const cutoff=days?new Date(Date.now()-days*86400000):null;
+  let rows=cutoff?TABLE_ROWS.filter(r=>r.createdRaw&&new Date(r.createdRaw)>=cutoff):[...TABLE_ROWS];
+  const q=$('search').value.toLowerCase();
+  rows=rows.filter(r=>r.nome.toLowerCase().includes(q)||r.email.toLowerCase().includes(q)||r.escola.toLowerCase().includes(q));
+  const csv=[header.join(','),...rows.map(r=>[
+    `"${r.nome}"`,`"${r.email}"`,`"${r.escola}"`,`"${r.area}"`,
+    r.projs,`"${r.steamAreas.join('; ')}"`,r.events,
+    `"${r.lastSeen}"`,`"${r.created}"`
+  ].join(','))].join('\n');
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob(['﻿'+csv],{type:'text/csv;charset=utf-8'}));
+  a.download=`steam-usuarios-${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+}
+
+/* ─── UTILS ─── */
+function esc(s){return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+function relTime(iso){
+  if(!iso) return '—';
+  const d=Math.floor((Date.now()-new Date(iso))/(1000*60*60*24));
+  if(d===0) return 'hoje';
+  if(d===1) return 'ontem';
+  if(d<7) return `há ${d} dias`;
+  if(d<30) return `há ${Math.floor(d/7)} sem.`;
+  if(d<365) return `há ${Math.floor(d/30)} meses`;
+  return `há ${Math.floor(d/365)} ano(s)`;
+}
+
+/* ─── BOOT ─── */
+loadTheme();
+initAuth();
 </script>
 </body>
 </html>
