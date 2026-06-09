@@ -11,23 +11,24 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 :root{
-  --bg:#f4f7f5;--card:#ffffff;--ink:#0f2e22;--muted:#5b6f66;
-  --line:#e3ece7;--input-bg:#fbfdfc;--hover:#f7faf8;
-  --feedback-card:#ffffff;--feedback-soft:#ecfdf5;--feedback-warm:#fff7ed;
-  --green:#16a34a;--green-d:#0f7a37;--teal:#0d9488;
+  --bg:#f6f7fb;--card:#ffffff;--ink:#111827;--muted:#526071;
+  --line:#e2e8f0;--input-bg:#f8fafc;--hover:#f1f5f9;
+  --feedback-card:#ffffff;--feedback-soft:#eef6ff;--feedback-warm:#f7f0ff;
+  --green:#2563eb;--green-d:#1d4ed8;--teal:#7c3aed;
   --amber:#f59e0b;--red:#dc2626;--blue:#2563eb;--violet:#7c3aed;
-  --shadow:0 1px 2px rgba(15,46,34,.04),0 8px 24px rgba(15,46,34,.06);
+  --shadow:0 1px 2px rgba(15,23,42,.05),0 8px 24px rgba(15,23,42,.08);
   --radius:16px;
 }
 .dark{
-  --bg:#07110d;--card:#102017;--ink:#f2fff7;--muted:#b5c9bd;
-  --line:#244232;--input-bg:#14271d;--hover:#183225;
-  --feedback-card:#14271d;--feedback-soft:#10291c;--feedback-warm:#2b2110;
+  --bg:#070911;--card:#111827;--ink:#f8fafc;--muted:#cbd5e1;
+  --line:#263244;--input-bg:#0f172a;--hover:#1e293b;
+  --feedback-card:#0f172a;--feedback-soft:#111f36;--feedback-warm:#221a35;
   --shadow:0 1px 2px rgba(0,0,0,.25),0 8px 24px rgba(0,0,0,.35);
 }
 *{box-sizing:border-box;transition:background .2s,color .2s,border-color .2s}
 body{margin:0;font-family:'Manrope',system-ui,sans-serif;background:
-  radial-gradient(1200px 500px at 100% -10%,rgba(22,163,74,.08),transparent 60%),
+  radial-gradient(900px 420px at 100% -10%,rgba(37,99,235,.12),transparent 60%),
+  radial-gradient(700px 360px at -10% 15%,rgba(124,58,237,.08),transparent 55%),
   var(--bg);color:var(--ink);-webkit-font-smoothing:antialiased;min-height:100vh}
 button{font-family:inherit;cursor:pointer;border:none;border-radius:10px;font-weight:600;transition:opacity .15s,transform .1s}
 .btn{padding:9px 14px;font-size:13px;background:var(--ink);color:var(--bg);display:inline-flex;gap:7px;align-items:center}
@@ -99,12 +100,12 @@ td.num{font-variant-numeric:tabular-nums;font-weight:700;text-align:center}
 .name{font-weight:700}
 .email{font-size:11.5px;color:var(--muted)}
 .tag{display:inline-block;padding:1px 7px;border-radius:6px;font-size:11px;font-weight:600;
-  background:#eef4f0;color:var(--green-d);margin:1px}
-.dark .tag{background:#1e3e28}
+  background:#eef2ff;color:var(--green-d);margin:1px}
+.dark .tag{background:#1e293b}
 .tag-area{background:#e8f0fe;color:#1d4ed8}
 .dark .tag-area{background:#1e2f5e;color:#93c5fd}
 .tag-school{background:#f3f4f6;color:#374151}
-.dark .tag-school{background:#1e2a20;color:var(--muted)}
+.dark .tag-school{background:#1f2937;color:var(--muted)}
 .last-seen{font-size:12px;color:var(--muted)}
 
 .empty{text-align:center;padding:50px 20px;color:var(--muted)}
@@ -140,7 +141,7 @@ td.num{font-variant-numeric:tabular-nums;font-weight:700;text-align:center}
 
 /* ── TOAST ── */
 .toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(12px);
-  background:#0f2e22;color:#fff;padding:11px 20px;border-radius:12px;font-size:13px;
+  background:#111827;color:#fff;padding:11px 20px;border-radius:12px;font-size:13px;
   font-weight:600;z-index:1000;opacity:0;transition:opacity .25s,transform .25s;
   pointer-events:none;box-shadow:0 6px 24px rgba(0,0,0,.3);white-space:nowrap}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
@@ -163,14 +164,14 @@ td.num{font-variant-numeric:tabular-nums;font-weight:700;text-align:center}
 [data-tip]::after{
   content:attr(data-tip);
   position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%) scale(.95);
-  background:#0f2e22;color:#fff;font-size:11.5px;font-weight:600;
+  background:#111827;color:#fff;font-size:11.5px;font-weight:600;
   padding:5px 11px;border-radius:8px;white-space:nowrap;
   pointer-events:none;opacity:0;transition:opacity .18s,transform .18s;z-index:999;
   box-shadow:0 4px 12px rgba(0,0,0,.25)
 }
 [data-tip]::before{
   content:'';position:absolute;bottom:calc(100% + 3px);left:50%;transform:translateX(-50%);
-  border:5px solid transparent;border-top-color:#0f2e22;
+  border:5px solid transparent;border-top-color:#111827;
   pointer-events:none;opacity:0;transition:opacity .18s;z-index:999
 }
 [data-tip]:hover::after{opacity:1;transform:translateX(-50%) scale(1)}
@@ -248,7 +249,7 @@ header{overflow:visible}
   <!-- KPIs -->
   <div class="kpis">
     <div class="panel kpi">
-      <div class="ic" style="background:#e7f6ec;color:var(--green)" data-tip="Total de professores e alunos cadastrados no app STEAM">👥</div>
+      <div class="ic" style="background:#eef2ff;color:var(--green)" data-tip="Total de professores e alunos cadastrados no app STEAM">👥</div>
       <div class="v" id="k_users">—</div><div class="l">Usuários cadastrados</div>
     </div>
     <div class="panel kpi">
@@ -326,8 +327,8 @@ header{overflow:visible}
 <script>
 const SUPABASE_URL = 'https://hgfsvequhesliqknmysz.supabase.co';
 const SUPABASE_ANON = 'sb_publishable_B2BNeoJBasP8c5S-2TY3AQ_MgBj8fv7';
-const PALETTE = ['#16a34a','#2563eb','#f59e0b','#dc2626','#7c3aed','#0d9488','#db2777','#65a30d','#ea580c','#0891b2'];
-const THEME_VERSION = '2026-06-dark-default';
+const PALETTE = ['#2563eb','#7c3aed','#f59e0b','#dc2626','#0891b2','#db2777','#ea580c','#6366f1','#14b8a6','#64748b'];
+const THEME_VERSION = '2026-06-graphite-default';
 const $ = id => document.getElementById(id);
 
 let sb, USERS=[], PROJECTS=[], EVENTS=[], FEEDBACKS=[], TABLE_ROWS=[];
@@ -681,7 +682,7 @@ function renderTime(map){
   const c=chartColors();
   timeChart=new Chart(canvas,{
     type:'line',
-    data:{labels:pretty,datasets:[{label:'Cadastros',data,borderColor:'#16a34a',backgroundColor:'rgba(22,163,74,.12)',fill:true,tension:.35,pointBackgroundColor:'#16a34a',pointRadius:4}]},
+    data:{labels:pretty,datasets:[{label:'Cadastros',data,borderColor:'#2563eb',backgroundColor:'rgba(37,99,235,.14)',fill:true,tension:.35,pointBackgroundColor:'#2563eb',pointRadius:4}]},
     options:{maintainAspectRatio:false,plugins:{legend:{display:false}},
       scales:{y:{beginAtZero:true,grid:{color:c.grid},ticks:{color:c.tick,precision:0,font:{family:'Manrope'}}},
               x:{grid:{color:c.grid},ticks:{color:c.tick,font:{family:'Manrope'}}}}}
